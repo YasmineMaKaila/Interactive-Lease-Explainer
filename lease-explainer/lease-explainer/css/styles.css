@@ -1,0 +1,615 @@
+/* ===========================================================================
+   Interactive Residential Lease Explainer
+   The lease page is the dominant visual. Everything here stays quiet.
+   =========================================================================== */
+
+:root {
+  --ink:            #191c1f;
+  --ink-2:          #3d4650;
+  --ink-3:          #64707c;
+  --line:           #dfe3e7;
+  --line-2:         #eceef1;
+  --paper:          #ffffff;
+  --shell:          #f4f5f7;
+  --panel:          #ffffff;
+
+  --accent:         #17566d;   /* deep teal — selection / active */
+  --accent-ink:     #0e3c4d;
+  --accent-soft:    #eef4f7;
+  --tint:           rgba(23, 86, 109, 0.11);   /* <= 12% alpha, multiply */
+  --tint-hover:     rgba(23, 86, 109, 0.075);
+
+  --focus:          #9a3412;   /* distinct from selection, 5.9:1 on white */
+  --flag:           #8a5300;
+  --flag-soft:      #fdf6e8;
+
+  --radius:         12px;
+  --radius-sm:      8px;
+  --shadow-1:       0 1px 2px rgba(16,24,32,.05), 0 2px 8px rgba(16,24,32,.045);
+  --shadow-2:       0 2px 4px rgba(16,24,32,.06), 0 10px 28px rgba(16,24,32,.075);
+
+  --ease:           cubic-bezier(0.4, 0, 0.2, 1);
+  --dur:            280ms;
+
+  --ui: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, Roboto,
+        "Helvetica Neue", Arial, sans-serif;
+  --doc: ui-serif, Georgia, "Times New Roman", serif;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--ui);
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--shell);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 { margin: 0; font-weight: 620; letter-spacing: -0.011em; line-height: 1.25; }
+p { margin: 0; }
+button { font: inherit; color: inherit; }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+.skip-link {
+  position: absolute; left: 12px; top: -60px; z-index: 100;
+  background: var(--paper); color: var(--ink);
+  padding: 10px 16px; border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-2); text-decoration: none; font-weight: 600;
+  transition: top 160ms var(--ease);
+}
+.skip-link:focus { top: 12px; }
+
+/* --- focus ------------------------------------------------------------- */
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ===========================================================================
+   Shell
+   =========================================================================== */
+.app { max-width: 1680px; margin: 0 auto; padding: 0 24px 64px; }
+
+.masthead {
+  display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+  padding: 22px 2px 18px;
+}
+.masthead .wordmark {
+  font-size: 15px; font-weight: 660; letter-spacing: -0.01em; color: var(--ink);
+}
+.masthead .wordmark span { color: var(--ink-3); font-weight: 500; }
+.masthead .spacer { flex: 1 1 auto; }
+
+.progress-chip {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: 13px; color: var(--ink-3); font-variant-numeric: tabular-nums;
+}
+.progress-track {
+  width: 110px; height: 4px; border-radius: 999px; background: var(--line);
+  overflow: hidden;
+}
+.progress-fill {
+  display: block; height: 100%; background: var(--accent); border-radius: 999px;
+  transition: width var(--dur) var(--ease);
+}
+
+/* ===========================================================================
+   Buttons
+   =========================================================================== */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  min-height: 40px; padding: 8px 15px;
+  background: var(--paper); color: var(--ink);
+  border: 1px solid var(--line); border-radius: var(--radius-sm);
+  font-size: 14px; font-weight: 560; cursor: pointer;
+  transition: background 140ms var(--ease), border-color 140ms var(--ease),
+              color 140ms var(--ease);
+}
+.btn:hover:not(:disabled) { background: #fafbfc; border-color: #cfd6dc; }
+.btn:disabled { opacity: .42; cursor: not-allowed; }
+.btn--primary {
+  background: var(--accent); border-color: var(--accent); color: #fff;
+}
+.btn--primary:hover:not(:disabled) { background: var(--accent-ink); border-color: var(--accent-ink); }
+.btn--ghost { background: transparent; border-color: transparent; color: var(--ink-2); }
+.btn--ghost:hover:not(:disabled) { background: #eceef1; color: var(--ink); }
+.btn--sm { min-height: 34px; padding: 5px 11px; font-size: 13px; }
+.btn .ico { font-size: 15px; line-height: 1; }
+
+/* ===========================================================================
+   Screens
+   =========================================================================== */
+.screen[hidden] { display: none !important; }
+
+/* ---------- intro / summary shared card look ---------- */
+.sheet {
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: var(--radius); box-shadow: var(--shadow-1);
+}
+
+.intro { max-width: 1000px; margin: 8px auto 0; }
+.intro__head { padding: 46px 44px 34px; }
+.intro__eyebrow {
+  font-size: 12px; font-weight: 680; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 14px;
+}
+.intro h1 { font-size: clamp(30px, 4vw, 42px); letter-spacing: -0.022em; }
+.intro__lede {
+  margin-top: 16px; font-size: 18px; line-height: 1.6; color: var(--ink-2);
+  max-width: 62ch;
+}
+.intro__how {
+  margin-top: 26px; padding-top: 24px; border-top: 1px solid var(--line-2);
+  display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+}
+.how { display: flex; gap: 12px; align-items: flex-start; }
+.how__n {
+  flex: 0 0 auto; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--accent-soft); color: var(--accent-ink);
+  font-size: 12px; font-weight: 700; display: grid; place-items: center;
+  margin-top: 1px;
+}
+.how p { font-size: 14.5px; color: var(--ink-2); line-height: 1.5; }
+.how strong { color: var(--ink); font-weight: 600; }
+
+.notices { padding: 0 44px 34px; display: grid; gap: 12px; }
+.notice {
+  display: flex; gap: 13px; align-items: flex-start;
+  padding: 15px 17px; border-radius: var(--radius-sm);
+  font-size: 14px; line-height: 1.55;
+  border: 1px solid var(--line); background: #fbfcfd; color: var(--ink-2);
+}
+.notice__label {
+  flex: 0 0 auto; font-size: 11px; font-weight: 700; letter-spacing: .07em;
+  text-transform: uppercase; color: var(--ink-3); padding-top: 2px; width: 74px;
+}
+.notice--privacy { background: var(--accent-soft); border-color: #d3e2e9; }
+.notice--privacy .notice__label { color: var(--accent-ink); }
+.notice strong { color: var(--ink); font-weight: 620; }
+
+.precards {
+  padding: 0 44px 30px; display: grid; gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+.precard { border: 1px solid var(--line); border-radius: var(--radius); padding: 22px 22px 20px; }
+.precard h2 { font-size: 16px; }
+.precard__note { margin-top: 8px; font-size: 13px; color: var(--ink-3); line-height: 1.5; }
+.precard ol, .precard ul { margin: 16px 0 0; padding: 0; list-style: none; display: grid; gap: 11px; }
+.precard li { font-size: 14px; line-height: 1.5; color: var(--ink-2); }
+.precard li b { color: var(--ink); font-weight: 620; display: block; }
+.precard--num { counter-reset: c; }
+.precard--num li { counter-increment: c; display: grid; grid-template-columns: 26px 1fr; gap: 4px; }
+.precard--num li b::before {
+  content: counter(c) ". "; color: var(--ink-3); font-weight: 600;
+}
+.precard--num li b { grid-column: 1 / -1; }
+.precard--num li span { grid-column: 1 / -1; }
+
+.intro__cta { padding: 4px 44px 44px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.intro__cta .btn { min-height: 46px; padding: 11px 22px; font-size: 15px; }
+
+/* ===========================================================================
+   Lease screen — page orientation strip
+   =========================================================================== */
+.pagehead {
+  display: flex; align-items: flex-end; gap: 18px; flex-wrap: wrap;
+  padding: 4px 2px 16px;
+}
+.pagehead__cat {
+  font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 5px;
+}
+.pagehead h2 { font-size: 22px; letter-spacing: -0.015em; }
+.pagehead__meta { font-size: 13.5px; color: var(--ink-3); margin-top: 4px; font-variant-numeric: tabular-nums; }
+.pagehead .spacer { flex: 1 1 auto; }
+.pagehead__tools { display: flex; gap: 9px; align-items: center; flex-wrap: wrap; }
+
+/* sections menu */
+.sections { position: relative; }
+.sections__list {
+  position: absolute; right: 0; top: calc(100% + 6px); z-index: 40;
+  width: 330px; max-height: 60vh; overflow: auto;
+  background: var(--paper); border: 1px solid var(--line);
+  border-radius: var(--radius); box-shadow: var(--shadow-2);
+  padding: 7px; margin: 0; list-style: none;
+}
+.sections__list[hidden] { display: none; }
+.sections__item { display: block; }
+.sections__btn {
+  width: 100%; text-align: left; display: grid; grid-template-columns: 30px 1fr;
+  gap: 4px 10px; align-items: baseline;
+  background: none; border: 0; border-radius: var(--radius-sm);
+  padding: 9px 11px; cursor: pointer;
+}
+.sections__btn:hover { background: #f4f6f8; }
+.sections__btn[aria-current="true"] { background: var(--accent-soft); }
+.sections__n { font-size: 12px; font-weight: 700; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.sections__btn[aria-current="true"] .sections__n { color: var(--accent-ink); }
+.sections__cat { font-size: 10.5px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-3); grid-column: 2; }
+.sections__title { font-size: 14px; font-weight: 560; grid-column: 2; line-height: 1.35; }
+.sections__count { grid-column: 2; font-size: 12px; color: var(--ink-3); }
+
+/* ===========================================================================
+   Two-pane workspace  (65% document / 35% explanation)
+   =========================================================================== */
+.work {
+  display: grid;
+  grid-template-columns: minmax(0, 65fr) minmax(340px, 35fr);
+  gap: 22px;
+  align-items: start;
+}
+
+/* ---------- document viewer ---------- */
+.docpane { display: grid; gap: 12px; min-width: 0; }
+
+.viewer {
+  position: relative;
+  background: #e9ebee;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
+  overflow: hidden;
+  /* a document workspace: the sheet is centred on it and always fits whole */
+  height: min(calc(100vh - 214px), 1180px);
+  min-height: 440px;
+  display: grid;
+  place-items: center;
+  touch-action: pan-y;
+}
+
+/* the fitted page box: the whole page always fits, aspect locked to the source */
+.doc {
+  /* exact fitted size is set by app.js fitDoc(); these are the pre-script values */
+  position: relative;
+  aspect-ratio: 1700 / 2800;
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  max-height: 100%;
+  transform-origin: 0 0;
+  transition: transform var(--dur) var(--ease);
+  will-change: transform;
+  background: #fff;
+  box-shadow: 0 0 0 1px rgba(16,24,32,.07), 0 1px 12px rgba(16,24,32,.10);
+}
+.doc__img {
+  position: absolute; inset: 0;
+  display: block; width: 100%; height: 100%;
+  object-fit: fill;
+  user-select: none; -webkit-user-drag: none;
+}
+
+/* ---------- hotspots ---------- */
+.hs-layer { position: absolute; inset: 0; }
+
+.hs {
+  position: absolute;
+  margin: 0; padding: 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(23, 86, 109, 0.30);   /* at rest: hairline */
+  border-radius: 2px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 160ms var(--ease), border-color 160ms var(--ease),
+              opacity 160ms var(--ease), box-shadow 160ms var(--ease);
+}
+.hs__tint {
+  position: absolute; inset: 0; border-radius: 2px;
+  background: transparent;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  transition: background-color 160ms var(--ease);
+}
+/* left edge marker — a shape cue, not a colour cue */
+.hs__edge {
+  position: absolute; left: -1px; top: 0; bottom: 0; width: 0;
+  background: var(--accent); border-radius: 2px;
+  pointer-events: none;
+  transition: width 160ms var(--ease);
+}
+
+.hs:hover, .hs.is-preview { border-bottom-color: var(--accent); }
+.hs:hover .hs__tint, .hs.is-preview .hs__tint { background: var(--tint-hover); }
+
+.hs.is-active {
+  border-bottom-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent);
+}
+.hs.is-active .hs__tint { background: var(--tint); }
+.hs.is-active .hs__edge { width: 4px; }
+
+.hs:focus-visible { box-shadow: 0 0 0 2px var(--accent); }
+
+/* de-emphasise unrelated hotspot indicators — never a scrim over the page */
+.hs-layer.is-narrowed .hs:not(.is-active):not(.is-preview):not(:hover) { opacity: .4; }
+
+/* extra hit height on touch devices, without changing the drawn rect */
+@media (pointer: coarse) {
+  .hs::after {
+    content: ""; position: absolute; left: 0; right: 0;
+    top: 50%; transform: translateY(-50%);
+    height: 100%; min-height: 44px;
+  }
+}
+
+/* ---------- document toolbar ---------- */
+.doctools {
+  display: flex; align-items: center; gap: 9px; flex-wrap: wrap;
+}
+.doctools .spacer { flex: 1 1 auto; }
+.zoomstate {
+  font-size: 12.5px; color: var(--ink-3); font-variant-numeric: tabular-nums;
+  padding: 0 2px;
+}
+
+.guided {
+  display: flex; align-items: center; gap: 4px;
+  background: var(--paper); border: 1px solid var(--line);
+  border-radius: var(--radius-sm); padding: 3px;
+}
+.guided__count {
+  font-size: 13px; font-weight: 560; color: var(--ink-2);
+  padding: 0 10px; font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.guided .btn { border: 0; background: none; min-height: 32px; padding: 4px 10px; }
+.guided .btn:hover:not(:disabled) { background: #eceef1; }
+
+/* ---------- page navigation ---------- */
+.pagenav {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding-top: 2px;
+}
+.pagenav .spacer { flex: 1 1 auto; }
+.pagenav__count { font-size: 13.5px; color: var(--ink-2); font-weight: 560; font-variant-numeric: tabular-nums; }
+
+/* ===========================================================================
+   Explanation panel  — always OUTSIDE the document
+   =========================================================================== */
+.panel {
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: var(--radius); box-shadow: var(--shadow-1);
+  padding: 24px 24px 26px;
+  position: sticky; top: 16px;
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.panel__kicker {
+  font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+/* resting state */
+.panel__empty h3 { font-size: 20px; margin-top: 10px; letter-spacing: -0.014em; }
+.panel__empty p { margin-top: 10px; font-size: 14.5px; color: var(--ink-2); line-height: 1.6; }
+.panel__hintlist { margin: 18px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.panel__hintlist li {
+  display: flex; gap: 10px; align-items: flex-start;
+  font-size: 13.5px; color: var(--ink-2); line-height: 1.5;
+}
+.panel__hintlist .dot {
+  flex: 0 0 auto; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent); margin-top: 7px;
+}
+
+/* selected state */
+.term__ref {
+  display: inline-block; font-size: 11.5px; font-weight: 700; letter-spacing: .04em;
+  color: var(--accent-ink); background: var(--accent-soft);
+  padding: 3px 9px; border-radius: 999px; margin-bottom: 10px;
+}
+.term h3 { font-size: 21px; letter-spacing: -0.016em; line-height: 1.22; }
+
+.block { margin-top: 20px; }
+.block__label {
+  font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink-3); margin-bottom: 7px;
+}
+.block p { font-size: 14.5px; line-height: 1.62; color: var(--ink-2); }
+.block p + p { margin-top: 9px; }
+
+/* lease language — deliberately looks like the document, never like our copy */
+.leaselang { margin-top: 18px; }
+.leaselang__label {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--accent-ink); margin-bottom: 8px;
+}
+.leaselang__label .tag {
+  font-size: 9.5px; font-weight: 700; letter-spacing: .06em;
+  background: var(--accent); color: #fff; padding: 2px 6px; border-radius: 3px;
+  text-transform: uppercase;
+}
+.leaselang__body {
+  font-family: var(--doc); font-size: 14.5px; line-height: 1.6; color: #2a2f34;
+  background: #fbfaf7; border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 13px 15px;
+}
+.leaselang__body.is-clamped {
+  display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;
+}
+.leaselang__body b { font-weight: 700; }
+.leaselang__toggle {
+  margin-top: 7px; background: none; border: 0; padding: 3px 2px;
+  font-size: 12.5px; font-weight: 620; color: var(--accent-ink);
+  cursor: pointer; text-decoration: underline; text-underline-offset: 2px;
+}
+
+/* key term */
+.keyterm {
+  margin-top: 18px; padding: 15px 16px;
+  background: #f7f9fa; border: 1px solid var(--line); border-radius: var(--radius-sm);
+}
+.keyterm + .keyterm { margin-top: 10px; }
+.keyterm__label {
+  font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink-3); margin-bottom: 6px;
+}
+.keyterm dt { font-size: 14.5px; font-weight: 660; color: var(--ink); }
+.keyterm dd { margin: 4px 0 0; font-size: 14px; line-height: 1.58; color: var(--ink-2); }
+
+/* callouts */
+.callout {
+  margin-top: 18px; padding: 14px 16px;
+  border-radius: var(--radius-sm); border: 1px solid #e3d9bf; background: var(--flag-soft);
+}
+.callout__label {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--flag); margin-bottom: 6px;
+}
+.callout p { font-size: 14px; line-height: 1.58; color: #4a3c1c; }
+
+.reviewnote {
+  margin-top: 18px; padding: 14px 16px;
+  border-radius: var(--radius-sm); border: 1px dashed #c8ced4; background: #f8f9fa;
+}
+.reviewnote__label {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink-3); margin-bottom: 6px;
+}
+.reviewnote p { font-size: 13.5px; line-height: 1.55; color: var(--ink-2); }
+.badge-pending {
+  font-size: 9.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  border: 1px solid #c8ced4; color: var(--ink-3); padding: 2px 6px; border-radius: 3px;
+}
+
+/* cross links */
+.xrefs { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line-2); }
+.xrefs__label {
+  font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink-3); margin-bottom: 9px;
+}
+.xrefs ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 7px; }
+.xref {
+  background: none; border: 0; padding: 2px 0; cursor: pointer; text-align: left;
+  font-size: 13.5px; font-weight: 560; color: var(--accent-ink);
+  text-decoration: underline; text-underline-offset: 2px;
+}
+.xref:hover { color: var(--accent); }
+
+/* provenance */
+.provenance {
+  margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line-2);
+  font-size: 11.5px; line-height: 1.5; color: var(--ink-3);
+}
+
+/* ===========================================================================
+   Summary screen
+   =========================================================================== */
+.summary { max-width: 1100px; margin: 8px auto 0; }
+.summary__head { padding: 44px 44px 8px; }
+.summary h1 { font-size: clamp(26px, 3.2vw, 34px); letter-spacing: -0.02em; }
+.summary__lede { margin-top: 12px; font-size: 16.5px; color: var(--ink-2); max-width: 66ch; }
+.summary__grid {
+  padding: 26px 44px 8px; display: grid; gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+}
+.sumcard { border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; }
+.sumcard h2 { font-size: 15.5px; color: var(--accent-ink); }
+.sumcard dl { margin: 15px 0 0; display: grid; gap: 12px; }
+.sumcard dt { font-size: 13.5px; font-weight: 660; color: var(--ink); }
+.sumcard dd { margin: 3px 0 0; font-size: 13.5px; line-height: 1.55; color: var(--ink-2); }
+.summary__cta { padding: 22px 44px 44px; display: flex; gap: 12px; flex-wrap: wrap; }
+
+/* ===========================================================================
+   Text-alternative dialog
+   =========================================================================== */
+.textdlg {
+  width: min(860px, 94vw); max-height: 86vh; padding: 0;
+  border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow-2); background: var(--paper); color: var(--ink);
+}
+.textdlg::backdrop { background: rgba(16, 24, 32, .42); }
+.textdlg__head {
+  display: flex; align-items: center; gap: 14px;
+  padding: 18px 22px; border-bottom: 1px solid var(--line);
+  position: sticky; top: 0; background: var(--paper); z-index: 1;
+}
+.textdlg__head h2 { font-size: 16px; }
+.textdlg__head .spacer { flex: 1 1 auto; }
+.textdlg__body { padding: 20px 22px 26px; overflow: auto; max-height: calc(86vh - 70px); }
+.textdlg__body pre {
+  margin: 0; white-space: pre-wrap; word-break: break-word;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.5px; line-height: 1.65; color: var(--ink-2);
+}
+
+/* ===========================================================================
+   Responsive
+   =========================================================================== */
+/* tablet — approximately 55 / 45 */
+@media (max-width: 1120px) {
+  .work { grid-template-columns: minmax(0, 55fr) minmax(300px, 45fr); gap: 18px; }
+  .viewer { height: min(calc(100vh - 226px), 940px); }
+  .app { padding: 0 18px 56px; }
+  .intro__head, .notices, .precards, .intro__cta,
+  .summary__head, .summary__grid, .summary__cta { padding-left: 30px; padding-right: 30px; }
+}
+
+/* mobile — stack: screenshot, explanation, navigation */
+@media (max-width: 860px) {
+  /* stack: LEASE SCREENSHOT -> EXPLANATION -> NAVIGATION.
+     .docpane becomes transparent so its children can be ordered directly. */
+  .work { display: flex; flex-direction: column; align-items: stretch; gap: 16px; }
+  .docpane { display: contents; }
+  .viewer   { order: 1; }
+  .panel    { order: 2; }
+  .doctools { order: 3; }
+  .pagenav  { order: 4; }
+  .panel { position: static; max-height: none; padding: 20px; }
+  .viewer { height: min(74vh, 640px); min-height: 380px; }
+  .pagehead { padding-bottom: 12px; }
+  .pagehead h2 { font-size: 19px; }
+  .sections__list { width: min(330px, calc(100vw - 40px)); }
+  .app { padding: 0 14px 48px; }
+  .intro__head { padding: 32px 22px 26px; }
+  .notices, .precards, .intro__cta { padding-left: 22px; padding-right: 22px; }
+  .summary__head, .summary__grid, .summary__cta { padding-left: 22px; padding-right: 22px; }
+  .notice { flex-direction: column; gap: 6px; }
+  .notice__label { width: auto; }
+  /* never sticky: a floating bar would sit on top of the lease page */
+  .pagenav { position: static; padding-top: 2px; }
+  .doctools { justify-content: center; }
+}
+
+@media (max-width: 420px) {
+  .guided__count { padding: 0 5px; font-size: 12.5px; }
+  .doctools, .pagenav { gap: 7px; }
+  .btn { padding: 8px 12px; }
+}
+
+/* ===========================================================================
+   Reduced motion — movement is instant, highlights stay
+   =========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .doc { transition: none !important; }
+}
+
+/* ===========================================================================
+   Print — the lease, not the chrome
+   =========================================================================== */
+@media print {
+  .masthead, .doctools, .pagenav, .pagehead__tools, .panel { display: none !important; }
+  .viewer { height: auto; border: 0; box-shadow: none; }
+  .doc { transform: none !important; height: auto; }
+}
